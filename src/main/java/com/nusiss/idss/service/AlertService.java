@@ -2,6 +2,8 @@ package com.nusiss.idss.service;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nusiss.idss.dto.AlertDTO;
+import com.nusiss.idss.dto.AlertDetailDTO;
 import com.nusiss.idss.po.Alert;
 import com.nusiss.idss.po.AlertDeviceDataRelationship;
 import com.nusiss.idss.po.DeviceData;
@@ -12,6 +14,8 @@ import com.nusiss.idss.vo.AlertVO;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -34,8 +38,12 @@ public class AlertService {
         return repository.findAll();
     }
 
-    public Optional<Alert> getAlertById(Integer id) {
-        return repository.findById(id);
+    public Page<AlertDTO> getAlertDetails(Pageable pageable) {
+        return repository.fetchAlertDetails(pageable);
+    }
+
+    public List<AlertDetailDTO> getAlertById(Integer id) {
+        return repository.fetchAlertDetailsById(id);
     }
 
 

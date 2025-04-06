@@ -5,23 +5,40 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-@Entity
+import jakarta.persistence.*;
+
 @Data
+@Entity
 @Table(name = "Users")
-public class User {
+public class User extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private String userId;
+
+    @Column(name = "username", length = 50, nullable = false)
     private String username;
+
+    @Column(name = "password", length = 255, nullable = false)
     private String password;
+
+    @Column(name = "role_id", length = 36, nullable = true)
     private String roleId;
+
+    @Column(name = "email", length = 100, unique = true)
     private String email;
+
+    @Column(name = "phone_number", length = 15, unique = true)
     private String phoneNumber;
+
+    @Column(name = "status", length = 20)
     private String status;
+
+    @Column(name = "last_login")
     private LocalDateTime lastLogin;
+
+    @Column(name = "profile_picture_url", length = 255)
     private String profilePictureUrl;
-    private LocalDateTime createDatetime;
-    private LocalDateTime updateDatetime;
-    private String createUser;
-    private String updateUser;
+
 }
