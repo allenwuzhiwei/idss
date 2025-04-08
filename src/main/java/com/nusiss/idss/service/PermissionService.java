@@ -18,7 +18,7 @@ public class PermissionService {
         return repository.findAll();
     }
 
-    public Optional<Permission> getPermissionById(String id) {
+    public Optional<Permission> getPermissionById(Integer id) {
         return repository.findById(id);
     }
 
@@ -26,7 +26,7 @@ public class PermissionService {
         return repository.save(permission);
     }
 
-    public Permission updatePermission(String id, Permission permission) {
+    public Permission updatePermission(Integer id, Permission permission) {
         if (repository.existsById(id)) {
             permission.setPermissionId(id);
             return repository.save(permission);
@@ -34,7 +34,7 @@ public class PermissionService {
         return null;
     }
 
-    public boolean deletePermission(String id) {
+    public boolean deletePermission(Integer id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
             return true;

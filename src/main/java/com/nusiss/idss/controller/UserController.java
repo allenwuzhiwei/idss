@@ -3,8 +3,10 @@ package com.nusiss.idss.controller;
 import com.nusiss.idss.config.ApiResponse;
 import com.nusiss.idss.po.User;
 import com.nusiss.idss.service.UserService;
+import com.nusiss.idss.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,11 +15,14 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired private AuthenticationManager authManager;
+    @Autowired private JwtUtils jwtUtil;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
@@ -34,6 +39,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<User>> createUser(@RequestBody User user) {
+
         User createdUser = userService.createUser(user);
         return ResponseEntity.ok(new ApiResponse<>(true, "User created successfully", createdUser));
     }

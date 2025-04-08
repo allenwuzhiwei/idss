@@ -34,6 +34,9 @@ public class AlertService {
     @Autowired
     private AlertDeviceDataRelationshipRepository alertDeviceDataRelationshipRepository;
 
+    @Autowired
+    private S3Service s3Service;
+
     public List<Alert> getAllAlerts() {
         return repository.findAll();
     }
@@ -43,7 +46,15 @@ public class AlertService {
     }
 
     public List<AlertDetailDTO> getAlertById(Integer id) {
-        return repository.fetchAlertDetailsById(id);
+
+        List<AlertDetailDTO> alertDetailDTOs = repository.fetchAlertDetailsById(id);
+        for(AlertDetailDTO alertDetailDTO: alertDetailDTOs){
+            String mediaUrl = alertDetailDTO.getMediaUrl();
+            String presignedUrl = s3Service.generatePresignedUrl(mediaUrl);
+            alertDetailDTO.setMediaUrl(presignedUrl);
+        }
+
+        return alertDetailDTOs;
     }
 
 

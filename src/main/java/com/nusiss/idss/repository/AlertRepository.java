@@ -24,7 +24,14 @@ public interface AlertRepository extends JpaRepository<Alert, Integer> {
     )
     Page<AlertDTO> fetchAlertDetails(Pageable pageable);
 
-    @Query(value = "SELECT a.alert_id AS alertId,a.alert_type AS alertType, a.alert_title AS alertTitle, a.alert_message AS alertMessage, a.severity_level AS severityLevel, a.acknowledged AS acknowledged, a.acknowledged_by AS acknowledgedBy, a.alert_datetime AS alertDatetime, a.acknowledged_at AS acknowledgedAt, d.data_id AS dataId, d.device_id AS deviceId, d.data_type AS dataType, d.data_value AS dataValue, d.media_url AS mediaUrl, d.file_format AS fileFormat, d.file_size AS fileSize, d.timestamp AS TIMESTAMP, d.processed AS processed FROM Alert_Device_Data_Relationship ad LEFT JOIN Device_Data d ON ad.data_id = d.data_id LEFT JOIN Alerts a ON ad.alert_id = a.alert_id " +
-            "WHERE a.alert_id = :id", nativeQuery = true)
+    @Query("SELECT new com.nusiss.idss.dto.AlertDetailDTO(" +
+            "a.alertId, a.deviceId, a.alertType, a.alertTitle, a.alertMessage, a.severityLevel, " +
+            "a.acknowledged, a.acknowledgedBy, a.alertDatetime, a.acknowledgedAt, " +
+            "d.dataId, d.dataType, d.dataValue, d.mediaUrl, d.fileFormat, d.fileSize, " +
+            "d.timestamp, d.processed) " +
+            "FROM Alert a " +
+            "JOIN AlertDeviceDataRelationship ad ON a.alertId = ad.alertId " +
+            "JOIN DeviceData d ON ad.dataId = d.dataId " +
+            "WHERE a.alertId = :id")
     List<AlertDetailDTO> fetchAlertDetailsById(@Param("id") Integer id);
 }

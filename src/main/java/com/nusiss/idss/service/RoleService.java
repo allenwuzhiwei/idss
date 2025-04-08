@@ -26,13 +26,13 @@ public class RoleService {
         return repository.save(role);
     }
 
-    public Role updateRole(String id, Role role) {
+    /*public Role updateRole(Integer id, Role role) {
         if (repository.existsById(id)) {
             role.setRoleId(id);
             return repository.save(role);
         }
         return null;
-    }
+    }*/
 
     public boolean deleteRole(String id) {
         if (repository.existsById(id)) {

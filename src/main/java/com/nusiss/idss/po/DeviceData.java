@@ -31,7 +31,7 @@ public class DeviceData extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "alert_id")
+    @Column(name = "data_id")
     private Integer dataId;
 
     @Column(name = "device_id")
