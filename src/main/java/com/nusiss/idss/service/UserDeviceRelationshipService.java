@@ -16,7 +16,7 @@ public class UserDeviceRelationshipService {
     }
 
     public List<UserDeviceRelationship> getAll() { return repository.findAll(); }
-    public UserDeviceRelationship getById(String id) { return repository.findById(id).orElse(null); }
+    public UserDeviceRelationship getById(Integer id) { return repository.findById(id).orElse(null); }
     public UserDeviceRelationship save(UserDeviceRelationship rel) { return repository.save(rel); }
-    public void delete(String id) { repository.deleteById(id); }
+    public void delete(Integer id) { repository.deleteById(id); }
 }

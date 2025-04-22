@@ -22,15 +22,23 @@ public interface PermissionRepository extends JpaRepository<Permission, Integer>
     List<String> findPermissionsByUsername(@Param("username") String username);
 
     @Query(value = """
-    SELECT CASE 
-             WHEN COUNT(*) > 0 THEN true 
-             ELSE false 
-           END
-    FROM users u
-    LEFT JOIN user_roles ur ON u.user_id = ur.user_id
-    LEFT JOIN role_permissions rp ON ur.role_id = rp.role_id
-    LEFT JOIN permissions p ON rp.permission_id = p.permission_id
-    WHERE u.username = :username AND p.permission_name = :permissionKey
+            SELECT p.*
+                FROM Permissions p
+                LEFT JOIN Role_Permissions rp ON p.permission_id = rp.permission_id
+                WHERE role_id = :roleId
     """, nativeQuery = true)
-    boolean userHasPermission(@Param("username") String username, @Param("permissionKey") String permissionKey);
+    List<Permission> findPermissionsByRoleId(@Param("roleId") Integer roleId);
+
+    @Query(value = """
+    SELECT COUNT(*)
+    FROM Users u
+    LEFT JOIN User_Roles ur ON u.user_id = ur.user_id
+    LEFT JOIN Role_Permissions rp ON ur.role_id = rp.role_id
+    LEFT JOIN Permissions p ON rp.permission_id = p.permission_id
+    WHERE u.username = :username AND ur.role_id = 1 or (
+                                                 :permissionKey = p.permission_name
+                                                 OR :permissionKey LIKE CONCAT(p.permission_name, '/%')
+                                               )
+    """, nativeQuery = true)
+    Long userHasPermission(@Param("username") String username, @Param("permissionKey") String permissionKey);
 }

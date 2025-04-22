@@ -23,9 +23,6 @@ public class User extends BaseEntity {
     @Column(name = "password", length = 255, nullable = false)
     private String password;
 
-    @Column(name = "role_id", length = 36, nullable = true)
-    private Integer roleId;
-
     @Column(name = "email", length = 100, unique = true)
     private String email;
 

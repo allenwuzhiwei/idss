@@ -2,7 +2,7 @@ spring:
   cache:
     type: redis
   redis:
-    host: 4.222.114.197
+    host: 44.222.114.197
     port: 6379
   datasource:
     url: jdbc:mysql://intruder-detection-db.c9jun6t2d9uf.us-east-1.rds.amazonaws.com:3306/idss
@@ -19,11 +19,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
         physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:9000
 springdoc:
   api-docs:
     enabled: true
@@ -35,7 +30,7 @@ aws:
 cloud:
   aws:
     credentials:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
+      access-key: ${access-key}
+      secret-key: ${secret-key}
     region:
       static: us-east-1

@@ -1,5 +1,6 @@
 package com.nusiss.idss.filter;
 
+import com.nusiss.idss.config.ApiResponse;
 import com.nusiss.idss.service.UserService;
 import com.nusiss.idss.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
@@ -10,13 +11,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Component
-@Order(1)
 public class AuthorizationFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -29,13 +32,26 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String userName = extractUserNameFromToken(request); // implement this
         String path = request.getRequestURI();
+        if (path.startsWith("/api/users/login")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        String userName = extractUserNameFromToken(request);
+
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+         // implement this
+
         String method = request.getMethod();
         String permissionKey = method + ":" + path;
-
+        //String userName = auth.getName();
         if (StringUtils.isNotEmpty(userName)) {
             if(!userService.userHasPermission(userName, permissionKey)){
+                //return ResponseEntity.status(401).body(new ApiResponse<>(false, "Invalid username or password", "You don't have permission."));
+
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 response.getWriter().write("You don't have permission.");
                 return;

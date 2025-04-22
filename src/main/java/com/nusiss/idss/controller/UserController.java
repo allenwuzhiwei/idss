@@ -69,7 +69,8 @@ public class UserController {
 
         if (isAuthenticated) {
             //userService.updateLastLogin(username);
-            return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", "JWT-TOKEN-PLACEHOLDER"));
+            String token = jwtUtil.generateToken(username);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", token));
         } else {
             return ResponseEntity.status(401).body(new ApiResponse<>(false, "Invalid username or password", null));
         }

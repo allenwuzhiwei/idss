@@ -8,6 +8,8 @@ import com.nusiss.idss.po.User;
 import com.nusiss.idss.po.UserDeviceRelationship;
 import com.nusiss.idss.repository.DeviceRepository;
 import com.nusiss.idss.repository.UserDeviceRelationshipRepository;
+import com.nusiss.idss.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class DeviceService {
     private RedisCrudService redisCrudService;
 
     @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -36,19 +41,20 @@ public class DeviceService {
         return deviceRepository.findAll();
     }
 
-    public Optional<Device> getDeviceById(String id) {
+    public Optional<Device> getDeviceById(Integer id) {
         return deviceRepository.findById(id);
     }
 
     @Transactional
-    public Device createDevice(Device device) {
+    public Device createDevice(Device device, HttpServletRequest request) {
         //save device
 
+        String username = jwtUtils.getCurrentUsername(request);
         UserDeviceRelationship userDeviceRelationship = new UserDeviceRelationship();
 
         Device devicePo = deviceRepository.save(device);
-        if(redisCrudService.exists("")){
-            String userJson = redisCrudService.get("");
+        if(redisCrudService.exists(username)){
+            String userJson = redisCrudService.get(username);
             try {
                User user = objectMapper.readValue(userJson, User.class);
                userDeviceRelationship.setUserId(user.getUserId());
@@ -65,7 +71,7 @@ public class DeviceService {
 
     }
 
-    public Device updateDevice(String id, Device updatedDevice) {
+    public Device updateDevice(Integer id, Device updatedDevice) {
         return deviceRepository.findById(id)
                 .map(device -> {
                     device.setDeviceName(updatedDevice.getDeviceName());
@@ -79,7 +85,10 @@ public class DeviceService {
                 .orElseThrow(() -> new RuntimeException("Device not found"));
     }
 
-    public void deleteDevice(String id) {
+    @Transactional
+    public void deleteDevice(Integer id) {
+
         deviceRepository.deleteById(id);
+        userDeviceRelationshipRepository.deleteByDeviceId(id);
     }
 }

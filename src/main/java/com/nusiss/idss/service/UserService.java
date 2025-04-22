@@ -58,7 +58,6 @@ public class UserService {
         return userRepository.findById(userId).map(user -> {
             user.setUsername(userDetails.getUsername());
             user.setPassword(userDetails.getPassword());
-            user.setRoleId(userDetails.getRoleId());
             user.setEmail(userDetails.getEmail());
             user.setPhoneNumber(userDetails.getPhoneNumber());
             user.setStatus(userDetails.getStatus());
@@ -96,7 +95,7 @@ public class UserService {
 
     public boolean userHasPermission(String userName, String permissionName) {
 
-        return permissionRepository.userHasPermission(userName, permissionName);
+        return permissionRepository.userHasPermission(userName, permissionName) > 0;
     }
 
     public void updateLastLogin(String username) {
