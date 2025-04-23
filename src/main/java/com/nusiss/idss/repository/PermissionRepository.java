@@ -35,7 +35,7 @@ public interface PermissionRepository extends JpaRepository<Permission, Integer>
     LEFT JOIN User_Roles ur ON u.user_id = ur.user_id
     LEFT JOIN Role_Permissions rp ON ur.role_id = rp.role_id
     LEFT JOIN Permissions p ON rp.permission_id = p.permission_id
-    WHERE u.username = :username AND ur.role_id = 1 or (
+    WHERE u.username = :username and (
                                                  :permissionKey = p.permission_name
                                                  OR :permissionKey LIKE CONCAT(p.permission_name, '/%')
                                                )

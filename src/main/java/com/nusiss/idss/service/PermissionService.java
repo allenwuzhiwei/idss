@@ -1,8 +1,12 @@
 package com.nusiss.idss.service;
 
 import com.nusiss.idss.po.Permission;
+import com.nusiss.idss.po.RolePermission;
 import com.nusiss.idss.repository.PermissionRepository;
+import com.nusiss.idss.repository.RolePermissionRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
@@ -20,6 +24,12 @@ public class PermissionService {
     @Autowired
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
+    @Autowired
+    private RolePermissionRepository rolePermissionRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     public List<Permission> findPermissionsByRoleId(Integer roleId){
 
         if (roleId == 1){
@@ -27,7 +37,7 @@ public class PermissionService {
         }
         return repository.findPermissionsByRoleId(roleId);
     }
-    public List<Permission> getAllApiEndpoints() {
+    public List<String> getAllApiEndpoints() {
         Map<RequestMappingInfo, HandlerMethod> handlerMethods = requestMappingHandlerMapping.getHandlerMethods();
 
         List<String> endpoints = new ArrayList<>();
@@ -78,4 +88,34 @@ public class PermissionService {
         }
         return false;
     }
+
+    @Transactional
+    public void assignPermissionsToRole(Integer roleId, List<Integer> permissionIds) {
+        //delete roleId related permissions
+        rolePermissionRepository.deleteByRoleId(roleId);
+        /*List<RolePermission> rolePermissions = new ArrayList<>();
+
+        for (Integer permissionId : permissionIds) {
+            RolePermission rolePermission = new RolePermission();
+            rolePermission.setRoleId(roleId);
+            rolePermission.setPermissionId(permissionId);
+            rolePermissions.add(rolePermission);
+        }*/
+
+        //rolePermissionRepository.saveAll(rolePermissions);
+
+        bulkInsert(roleId, permissionIds);
+
+    }
+
+    public void bulkInsert(Integer roleId, List<Integer> permissionIds) {
+        String sql = "INSERT INTO Role_Permissions (role_id, permission_id) VALUES (?, ?)";
+
+        List<Object[]> batchArgs = permissionIds.stream()
+                .map(pid -> new Object[]{roleId, pid})
+                .toList();
+
+        jdbcTemplate.batchUpdate(sql, batchArgs);
+    }
+
 }

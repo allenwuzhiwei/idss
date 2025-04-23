@@ -18,7 +18,7 @@ public class RoleService {
         return repository.findAll();
     }
 
-    public Optional<Role> getRoleById(String id) {
+    public Optional<Role> getRoleById(Integer id) {
         return repository.findById(id);
     }
 
@@ -34,7 +34,7 @@ public class RoleService {
         return null;
     }*/
 
-    public boolean deleteRole(String id) {
+    public boolean deleteRole(Integer id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
             return true;
