@@ -25,5 +25,11 @@ public class Device extends BaseEntity {
     @Column(name = "ip_address")
     private String ipAddress;
 
+    @Column(name = "stream_URL")
+    private String streamURL;
+
+    @Column(name = "serial_number")
+    private String serialNumber;
+
 
 }

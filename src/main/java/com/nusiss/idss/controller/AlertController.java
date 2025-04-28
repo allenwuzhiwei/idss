@@ -6,6 +6,7 @@ import com.nusiss.idss.dto.AlertDetailDTO;
 import com.nusiss.idss.po.Alert;
 import com.nusiss.idss.service.AlertService;
 import com.nusiss.idss.vo.AlertVO;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,12 +39,12 @@ public class AlertController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "alertDatetime") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction
+            @RequestParam(defaultValue = "desc") String direction, HttpServletRequest request
     ) {
         Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<AlertDTO> alertPage = service.getAlertDetails(pageable);
+        Page<AlertDTO> alertPage = service.getAlertDetails(pageable, request);
 
         ApiResponse<Page<AlertDTO>> response = new ApiResponse<>(
                 true,

@@ -17,8 +17,14 @@ public class Alert extends BaseEntity {
     @Column(name = "alert_id")
     private Integer alertId;
 
+    /**
+     * edge node id
+     */
     @Column(name = "device_id")  // Explicit column name mapping
     private String deviceId;
+
+    @Column(name = "alert_userId")  // Explicit column name mapping
+    private Integer alertUserId;
 
     @Column(name = "alert_type")  // Explicit column name mapping
     private String alertType;

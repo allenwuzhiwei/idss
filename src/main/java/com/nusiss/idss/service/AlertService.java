@@ -1,7 +1,6 @@
 package com.nusiss.idss.service;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nusiss.idss.dto.AlertDTO;
 import com.nusiss.idss.dto.AlertDetailDTO;
 import com.nusiss.idss.po.Alert;
@@ -11,6 +10,7 @@ import com.nusiss.idss.repository.AlertDeviceDataRelationshipRepository;
 import com.nusiss.idss.repository.AlertRepository;
 import com.nusiss.idss.repository.DeviceDataRepository;
 import com.nusiss.idss.vo.AlertVO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AlertService {
@@ -41,7 +40,7 @@ public class AlertService {
         return repository.findAll();
     }
 
-    public Page<AlertDTO> getAlertDetails(Pageable pageable) {
+    public Page<AlertDTO> getAlertDetails(Pageable pageable, HttpServletRequest request) {
         return repository.fetchAlertDetails(pageable);
     }
 
@@ -50,7 +49,7 @@ public class AlertService {
         List<AlertDetailDTO> alertDetailDTOs = repository.fetchAlertDetailsById(id);
         for(AlertDetailDTO alertDetailDTO: alertDetailDTOs){
             String mediaUrl = alertDetailDTO.getMediaUrl();
-            String presignedUrl = s3Service.generatePresignedUrl(mediaUrl);
+            String presignedUrl = s3Service.generatePresignedUrl(mediaUrl, alertDetailDTO.getFileFormat());
             alertDetailDTO.setMediaUrl(presignedUrl);
         }
 

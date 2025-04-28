@@ -1,13 +1,19 @@
 package com.nusiss.idss.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nusiss.idss.config.CustomException;
+import com.nusiss.idss.dto.UserDTO;
 import com.nusiss.idss.po.User;
+import com.nusiss.idss.po.UserRole;
 import com.nusiss.idss.repository.PermissionRepository;
 import com.nusiss.idss.repository.UserRepository;
 import com.nusiss.idss.repository.UserRoleRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,14 +37,15 @@ public class UserService {
     private RedisCrudService redisCrudService;
 
     @Autowired
+    private UserRoleRepository userRoleRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     private PermissionRepository permissionRepository;
 
-    @Autowired
-    private UserRoleRepository userRoleRepository;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -48,29 +55,109 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public User createUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Encrypt password
+    @Transactional
+    public User createUser(UserDTO userDTO) {
+        if (userDTO == null) {
+            return null;
+        }
+        User user = new User();
 
-        return userRepository.save(user);
+        if (userDTO.getRoleId()!= null) {
+            user.setUserId(userDTO.getUserId());
+        }
+        if (isNotEmpty(userDTO.getUsername())) {
+            user.setUsername(userDTO.getUsername());
+        }
+        if (isNotEmpty(userDTO.getPassword())) {
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        }
+        if (isNotEmpty(userDTO.getEmail())) {
+            user.setEmail(userDTO.getEmail());
+        }
+        if (isNotEmpty(userDTO.getPhoneNumber())) {
+            user.setPhoneNumber(userDTO.getPhoneNumber());
+        }
+        if (isNotEmpty(userDTO.getStatus())) {
+            user.setStatus(userDTO.getStatus());
+        }
+        if (userDTO.getLastLogin() != null) {
+            user.setLastLogin(userDTO.getLastLogin());
+        }
+        if (userDTO.getCreateDatetime() != null) {
+            user.setCreateDatetime(userDTO.getCreateDatetime());
+        }
+        if (userDTO.getUpdateDatetime() != null) {
+            user.setUpdateDatetime(userDTO.getUpdateDatetime());
+        }
+        if (isNotEmpty(userDTO.getCreateUser())) {
+            user.setCreateUser(userDTO.getCreateUser());
+        }
+        if (isNotEmpty(userDTO.getUpdateUser())) {
+            user.setUpdateUser(userDTO.getUpdateUser());
+        }
+
+        User newUser = userRepository.save(user);
+        if(userDTO.getRoleId() != null){
+            UserRole userRole = new UserRole();
+            userRole.setUserId(newUser.getUserId());
+            userRole.setRoleId(userDTO.getRoleId());
+            userRoleRepository.save(userRole);
+        }
+
+
+        return newUser;
     }
 
-    public User updateUser(Integer userId, User userDetails) {
+    private static boolean isNotEmpty(String str) {
+        return str != null && !str.trim().isEmpty();
+    }
+
+    public User updateUser(Integer userId, UserDTO userDetails) {
         return userRepository.findById(userId).map(user -> {
-            user.setUsername(userDetails.getUsername());
-            user.setPassword(userDetails.getPassword());
-            user.setEmail(userDetails.getEmail());
-            user.setPhoneNumber(userDetails.getPhoneNumber());
-            user.setStatus(userDetails.getStatus());
-            user.setLastLogin(userDetails.getLastLogin());
-            user.setProfilePictureUrl(userDetails.getProfilePictureUrl());
+            if (userDetails.getUsername() != null && !userDetails.getUsername().isEmpty()) {
+                user.setUsername(userDetails.getUsername());
+            }
+            if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+                user.setPassword(userDetails.getPassword());
+            }
+            if (userDetails.getEmail() != null && !userDetails.getEmail().isEmpty()) {
+                user.setEmail(userDetails.getEmail());
+            }
+            if (userDetails.getPhoneNumber() != null && !userDetails.getPhoneNumber().isEmpty()) {
+                user.setPhoneNumber(userDetails.getPhoneNumber());
+            }
+            if (userDetails.getStatus() != null && !userDetails.getStatus().isEmpty()) {
+                user.setStatus(userDetails.getStatus());
+            }
+            if (userDetails.getLastLogin() != null) {
+                user.setLastLogin(userDetails.getLastLogin());
+            }
             user.setUpdateDatetime(LocalDateTime.now());
-            user.setUpdateUser(userDetails.getUpdateUser());
+
+            if (userDetails.getUpdateUser() != null && !userDetails.getUpdateUser().isEmpty()) {
+                user.setUpdateUser(userDetails.getUpdateUser());
+            }
+
+            if(userDetails.getRoleId() != null){
+                UserRole userRole = userRoleRepository.findByUserId(userId);
+                if(userRole == null){
+                    UserRole userRoleNew = new UserRole();
+                    userRoleNew.setUserId(userId);
+                    userRoleNew.setRoleId(userDetails.getRoleId());
+                    userRoleRepository.save(userRoleNew);
+                } else {
+                    userRole.setRoleId(userDetails.getRoleId());
+                    userRoleRepository.save(userRole);
+                }
+            }
+
             return userRepository.save(user);
         }).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public void deleteUser(Integer userId) {
         userRepository.deleteById(userId);
+        userRoleRepository.deleteByUserId(userId);
     }
 
     public boolean validateUserLogin(String username, String rawPassword) {
@@ -148,6 +235,18 @@ public class UserService {
     public List<String> getUserPermissions(String username) {
 
         return permissionRepository.findPermissionsByUsername(username);
+    }
+
+    public Page<UserDTO> searchByUsername(String username, Pageable pageable) {
+        Page<UserDTO> userPage;
+        try{
+            userPage = userRepository.findByUsername(username, pageable);
+        }catch (Exception e){
+            log.info(e.getMessage(), e);
+            throw new CustomException(e.getMessage());
+        }
+
+        return userPage;
     }
 
 

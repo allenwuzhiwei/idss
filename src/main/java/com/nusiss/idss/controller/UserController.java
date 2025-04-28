@@ -1,15 +1,19 @@
 package com.nusiss.idss.controller;
 
 import com.nusiss.idss.config.ApiResponse;
+import com.nusiss.idss.dto.UserDTO;
 import com.nusiss.idss.po.User;
 import com.nusiss.idss.service.UserService;
 import com.nusiss.idss.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,11 +28,34 @@ public class UserController {
     @Autowired private AuthenticationManager authManager;
     @Autowired private JwtUtils jwtUtil;
 
+
     @GetMapping
+    public ResponseEntity<ApiResponse<Page<UserDTO>>> searchUsersByUsername(
+            @RequestParam(defaultValue = "") String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createDatetime") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
+        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<UserDTO> userPage = userService.searchByUsername(username, pageable);
+
+        ApiResponse<Page<UserDTO>> response = new ApiResponse<>(
+                true,
+                "Users retrieved successfully",
+                userPage
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    /*@GetMapping
     public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(new ApiResponse<>(true, "Users retrieved successfully", users));
-    }
+    }*/
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Integer id) {
@@ -38,14 +65,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody User user) {
+    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody UserDTO user) {
 
         User createdUser = userService.createUser(user);
         return ResponseEntity.ok(new ApiResponse<>(true, "User created successfully", createdUser));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Integer id, @RequestBody User user) {
+    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Integer id, @RequestBody UserDTO user) {
         try {
             User updatedUser = userService.updateUser(id, user);
             return ResponseEntity.ok(new ApiResponse<>(true, "User updated successfully", updatedUser));

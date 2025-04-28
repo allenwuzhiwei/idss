@@ -39,12 +39,25 @@ public class S3Service {
                 .build();
     }
 
-    public String generatePresignedUrl(String objectKey) {
+    public String generatePresignedUrl(String objectKey, String fileFormat) {
+        GetObjectRequest getObjectRequest = null;
         // Create a GetObjectRequest with the bucket and object key
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(objectKey)
-                .build();
+        if(fileFormat.equals("jpg")){
+            getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .responseContentType("image/jpeg") // 🔥 This is what tells the browser it's a video
+                    .build();
+        }
+
+        if(fileFormat.equals("mp4")){
+            getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .responseContentType("video/mp4") // 🔥 This is what tells the browser it's a video
+                    .build();
+        }
+
 
         // Create a request to presign the object for getting it from S3
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()

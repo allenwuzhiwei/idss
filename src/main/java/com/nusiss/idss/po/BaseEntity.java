@@ -1,6 +1,10 @@
 package com.nusiss.idss.po;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -31,10 +35,9 @@ public class BaseEntity {
         // Set the createDatetime to the current timestamp
         this.createDatetime = LocalDateTime.now();
         this.updateDatetime = this.createDatetime;
-
         // Set the user who is performing the operation (can be fetched from the security context or authentication)
-        this.createUser = "system";
-        this.updateUser = this.createUser; // or leave it as null if you prefer to set it later
+        //this.createUser = "system";
+        //this.updateUser = this.createUser; // or leave it as null if you prefer to set it later
     }
 
     @PreUpdate
@@ -43,7 +46,7 @@ public class BaseEntity {
         this.updateDatetime = LocalDateTime.now();
 
         // Optionally, set the user who is performing the update
-        this.updateUser = "system";
+        //this.updateUser = "system";
     }
 
 

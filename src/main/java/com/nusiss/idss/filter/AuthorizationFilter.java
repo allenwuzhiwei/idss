@@ -35,7 +35,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         if (path.startsWith("/api/users/login")
                 || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3")) {
+                || path.startsWith("/v3")
+                || path.startsWith("/actuator/health")) {
             filterChain.doFilter(request, response);
             return;
         }
