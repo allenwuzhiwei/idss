@@ -6,9 +6,11 @@ import com.nusiss.idss.dto.AlertDetailDTO;
 import com.nusiss.idss.po.Alert;
 import com.nusiss.idss.po.AlertDeviceDataRelationship;
 import com.nusiss.idss.po.DeviceData;
+import com.nusiss.idss.po.User;
 import com.nusiss.idss.repository.AlertDeviceDataRelationshipRepository;
 import com.nusiss.idss.repository.AlertRepository;
 import com.nusiss.idss.repository.DeviceDataRepository;
+import com.nusiss.idss.utils.JwtUtils;
 import com.nusiss.idss.vo.AlertVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -36,20 +38,25 @@ public class AlertService {
     @Autowired
     private S3Service s3Service;
 
+    @Autowired
+    private JwtUtils jwtUtil;
+
     public List<Alert> getAllAlerts() {
         return repository.findAll();
     }
 
-    public Page<AlertDTO> getAlertDetails(Pageable pageable, HttpServletRequest request) {
-        return repository.fetchAlertDetails(pageable);
+    public Page<AlertDTO> getAlerts(Pageable pageable, HttpServletRequest request) {
+        User user = jwtUtil.getCurrentUserInfo(request);
+        return repository.fetchAlerts(pageable, user.getUsername());
     }
 
-    public List<AlertDetailDTO> getAlertById(Integer id) {
+    public List<AlertDetailDTO> getAlertById(Integer id, HttpServletRequest request) {
 
-        List<AlertDetailDTO> alertDetailDTOs = repository.fetchAlertDetailsById(id);
+        User user = jwtUtil.getCurrentUserInfo(request);
+        List<AlertDetailDTO> alertDetailDTOs = repository.fetchAlertDetailsById(id, user.getUsername());
         for(AlertDetailDTO alertDetailDTO: alertDetailDTOs){
             String mediaUrl = alertDetailDTO.getMediaUrl();
-            String presignedUrl = s3Service.generatePresignedUrl(mediaUrl, alertDetailDTO.getFileFormat());
+            String presignedUrl = s3Service.generatePresignedUrl(mediaUrl);
             alertDetailDTO.setMediaUrl(presignedUrl);
         }
 

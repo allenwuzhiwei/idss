@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class AlertDetailDTO {
 
     private Integer alertId;
-    private String deviceId;
+    private Integer deviceId;
     private String alertType;
     private String alertTitle;
     private String alertMessage;
@@ -22,11 +22,11 @@ public class AlertDetailDTO {
     private boolean acknowledged;
     private String acknowledgedBy;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Singapore")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime alertDatetime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Singapore")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime acknowledgedAt;
 
@@ -43,7 +43,7 @@ public class AlertDetailDTO {
 
     private boolean processed;
 
-    public AlertDetailDTO(Integer alertId, String deviceId, String alertType, String alertTitle,
+    public AlertDetailDTO(Integer alertId, Integer deviceId, String alertType, String alertTitle,
                           String alertMessage, String severityLevel, boolean acknowledged, String acknowledgedBy,
                           LocalDateTime alertDatetime, LocalDateTime acknowledgedAt, Integer dataId, String dataType,
                           String dataValue, String mediaUrl, String fileFormat, int fileSize,

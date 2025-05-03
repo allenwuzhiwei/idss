@@ -2,13 +2,20 @@ package com.nusiss.idss.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nusiss.idss.config.CustomException;
+import com.nusiss.idss.dto.ImageSyncDTO;
 import com.nusiss.idss.dto.UserDTO;
+import com.nusiss.idss.po.ImageSync;
 import com.nusiss.idss.po.User;
 import com.nusiss.idss.po.UserRole;
+import com.nusiss.idss.repository.ImageSyncRepository;
 import com.nusiss.idss.repository.PermissionRepository;
 import com.nusiss.idss.repository.UserRepository;
 import com.nusiss.idss.repository.UserRoleRepository;
+import com.nusiss.idss.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +27,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -45,6 +51,12 @@ public class UserService {
 
     @Autowired
     private PermissionRepository permissionRepository;
+
+    @Autowired
+    private ImageSyncRepository imageSyncRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
 
     public List<User> getAllUsers() {
@@ -155,6 +167,7 @@ public class UserService {
         }).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    @Transactional
     public void deleteUser(Integer userId) {
         userRepository.deleteById(userId);
         userRoleRepository.deleteByUserId(userId);
@@ -166,7 +179,7 @@ public class UserService {
             try {
                 String userJson = objectMapper.writeValueAsString(user);
                 //save user info to redis
-                redisCrudService.save(user.getUsername(), userJson, 30, TimeUnit.MINUTES);
+                redisCrudService.save(user.getUsername(), userJson, 60, TimeUnit.MINUTES);
             } catch (Exception e) {
                 log.error("", e);
                 log.info(e.getMessage());
@@ -249,5 +262,55 @@ public class UserService {
         return userPage;
     }
 
+    @Transactional
+    public List<ImageSyncDTO> syncUserImages(HttpServletRequest request) {
+        User user = jwtUtils.getCurrentUserInfo(request);
+        String userName = user.getUsername();
+
+        //LocalDateTime  updateDatetime = imageSyncRepository.getLastSyncTime(userName);
+        //if (updateDatetime == null) {
+            // default to a very old date to get all records
+            //updateDatetime = LocalDateTime.of(1970, 1, 1, 0, 0);
+        //}
+        /*DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDatetime = updateDatetime.format(formatter);*/
+        List<ImageSyncDTO> imageSyncDTOs = userRepository.getUserImages(userName);
+
+        ImageSync imageSync = new ImageSync();
+        imageSync.setCreateUser(userName);
+        imageSync.setUpdateUser(userName);
+        //imageSync.setUpdateTime(LocalDateTime.now()); // optional if your entity supports it
+        imageSyncRepository.save(imageSync);
+
+        return imageSyncDTOs;
+    }
+
+    public Map<String, Object> updateUserImages(List<ImageSyncDTO> imageSyncDTOs, HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        User currentUser = jwtUtils.getCurrentUserInfo(request);
+        String userName = currentUser.getUsername();
+
+        if (imageSyncDTOs != null && !imageSyncDTOs.isEmpty()) {
+            for (ImageSyncDTO imageSyncDTO : imageSyncDTOs) {
+                Optional<User> userOption = userRepository.findById(imageSyncDTO.getUserId());
+                if (userOption.isPresent()) {
+                    User user = userOption.get();
+                    if (StringUtils.isNotBlank(imageSyncDTO.getStatusCode())) {
+                        user.setStatusCode(imageSyncDTO.getStatusCode());
+                    }
+                    user.setUpdateUser(userName);
+                    user.setUpdateDatetime(LocalDateTime.now());
+                    userRepository.save(user);
+                }
+            }
+            response.put("statusCode", 200);
+            response.put("message", "Users updated successfully");
+        } else {
+            response.put("statusCode", 400);
+            response.put("message", "No users to update");
+        }
+
+        return response;
+    }
 
 }

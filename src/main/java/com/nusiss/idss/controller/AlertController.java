@@ -34,7 +34,7 @@ public class AlertController {
         }
         return ResponseEntity.ok(new ApiResponse<>(true, "Alerts retrieved successfully", alerts));
     }*/
-    @GetMapping("/details")
+    @GetMapping
     public ResponseEntity<ApiResponse<Page<AlertDTO>>> getAlerts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -44,7 +44,7 @@ public class AlertController {
         Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<AlertDTO> alertPage = service.getAlertDetails(pageable, request);
+        Page<AlertDTO> alertPage = service.getAlerts(pageable, request);
 
         ApiResponse<Page<AlertDTO>> response = new ApiResponse<>(
                 true,
@@ -57,8 +57,8 @@ public class AlertController {
 
     // Get alert by ID
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<List<AlertDetailDTO>>> getAlertById(@PathVariable Integer id) {
-        List<AlertDetailDTO> alert = service.getAlertById(id);
+    public ResponseEntity<ApiResponse<List<AlertDetailDTO>>> getAlertById(@PathVariable Integer id, HttpServletRequest request) {
+        List<AlertDetailDTO> alert = service.getAlertById(id, request);
 
         ApiResponse<List<AlertDetailDTO> > response = new ApiResponse<>(
                 true,

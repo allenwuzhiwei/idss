@@ -18,7 +18,7 @@ public class AlertVO extends BaseEntity {
 
     private Integer alertUserId;
 
-    private String deviceId;
+    private Integer deviceId;
 
     private String alertType;
 

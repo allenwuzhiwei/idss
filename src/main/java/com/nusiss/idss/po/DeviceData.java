@@ -52,7 +52,7 @@ public class DeviceData extends BaseEntity {
     @Column(name = "file_size")
     private int fileSize;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Singapore")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "timestamp")
     private LocalDateTime timestamp;

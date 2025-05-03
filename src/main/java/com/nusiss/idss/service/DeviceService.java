@@ -110,7 +110,7 @@ public class DeviceService {
                         device.setUpdateUser(updatedDevice.getUpdateUser());
                     }
 
-                    device.setUpdateDatetime(java.time.LocalDateTime.now());
+                    device.setUpdateDatetime(LocalDateTime.now());
                     return deviceRepository.save(device);
                 })
                 .orElseThrow(() -> new RuntimeException("Device not found"));

@@ -21,7 +21,7 @@ public class Alert extends BaseEntity {
      * edge node id
      */
     @Column(name = "device_id")  // Explicit column name mapping
-    private String deviceId;
+    private Integer deviceId;
 
     @Column(name = "alert_userId")  // Explicit column name mapping
     private Integer alertUserId;
@@ -45,12 +45,12 @@ public class Alert extends BaseEntity {
     private String acknowledgedBy;
 
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Singapore")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "alert_datetime")
     private LocalDateTime alertDatetime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Singapore")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "acknowledged_at")
     private LocalDateTime acknowledgedAt;

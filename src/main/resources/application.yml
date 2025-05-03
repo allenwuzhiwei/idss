@@ -1,3 +1,11 @@
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 spring:
   cache:
     type: redis
@@ -5,9 +13,9 @@ spring:
     host: 44.222.114.197
     port: 6379
   datasource:
-    url: jdbc:mysql://intruder-detection-db.c9jun6t2d9uf.us-east-1.rds.amazonaws.com:3306/idss
+    url: jdbc:mysql://intruder-detection-db.c9jun6t2d9uf.us-east-1.rds.amazonaws.com:3306/idss?serverTimezone=UTC
     username: admin
-    password: 930485bd7ncxbh
+    password: ENC(roSgzaPIjSh46neDANSBDRsppy2Q8C9A)
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -24,13 +32,19 @@ springdoc:
     enabled: true
   swagger-ui:
     path: /swagger-ui.html
-aws:
-  accessKeyId:
-  secretAccessKey:
 cloud:
   aws:
     credentials:
-      access-key: ${access-key}
-      secret-key: ${secret-key}
+      access-key: ENC(vyrSk9gLGrFSB6NUIFAyXPB3il9BgYvvtd06wbT5qLk=)
+      secret-key: ENC(jlwUFwwF4JwAOVK1yKqnvlveWB81fNSjPZmp7sEol4IbgK6AaljOLX39mveOs0PJENEZeCxNYjo=)
     region:
       static: us-east-1
+  accessKeyId:
+  secretAccessKey:
+server:
+  ssl:
+    enabled: false
+    key-store: file:/opt/certs/keystore.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+    key-alias: springboot-https
