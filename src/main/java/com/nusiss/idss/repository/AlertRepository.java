@@ -15,12 +15,11 @@ import java.util.List;
 public interface AlertRepository extends JpaRepository<Alert, Integer> {
 
     @Query(
-            value = "SELECT a.alert_id AS alertId, a.alert_message AS alertMessage, a.alert_title AS alertTitle ," +
-                    " a.alert_datetime AS alertDatetime from Alerts a left join Devices d on a.device_id = d.device_id" +
-                    " left join Users u on u.username = d.create_user where u.username = :userName",
-            countQuery = "SELECT COUNT(alert_id) " +
-                    "from Alerts ",
-            nativeQuery = true
+            value = "SELECT new com.nusiss.idss.dto.AlertDTO(a.alertMessage, a.alertTitle, a.alertDatetime, a.alertId) " +
+                    "FROM Alert a " +
+                    "LEFT JOIN Device d on a.deviceId = d.deviceId " +
+                    "LEFT JOIN User u on u.username = d.createUser  " +
+                    "WHERE u.username = :userName"
     )
     Page<AlertDTO> fetchAlerts(Pageable pageable, @Param("userName") String userName);
 

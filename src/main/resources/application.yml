@@ -1,5 +1,6 @@
 jasypt:
   encryptor:
+    password: myEncryptionKey123
     algorithm: PBEWithMD5AndDES
     iv-generator-classname: org.jasypt.iv.NoIvGenerator
 logging:
@@ -7,11 +8,10 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 spring:
+  jackson:
+    time-zone: Asia/Singapore
   cache:
     type: redis
-  redis:
-    host: 44.222.114.197
-    port: 6379
   datasource:
     url: jdbc:mysql://intruder-detection-db.c9jun6t2d9uf.us-east-1.rds.amazonaws.com:3306/idss?serverTimezone=UTC
     username: admin

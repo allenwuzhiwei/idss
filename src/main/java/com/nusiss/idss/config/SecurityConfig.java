@@ -62,7 +62,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000", "https://localhost:3000", "https://54.198.170.28:81","https://web-elb-1385983805.us-east-1.elb.amazonaws.com:81", "http://web-elb-1385983805.us-east-1.elb.amazonaws.com:81"));
+        config.setAllowedOrigins(List.of("https://34.239.102.124:81", "https://intruderdashboard.com:81", "http://localhost:3000", "https://localhost:3000", "https://54.198.170.28:81","https://web-elb-1385983805.us-east-1.elb.amazonaws.com:81", "http://web-elb-1385983805.us-east-1.elb.amazonaws.com:81"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

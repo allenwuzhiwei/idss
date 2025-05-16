@@ -21,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -45,9 +47,18 @@ public class AlertService {
         return repository.findAll();
     }
 
-    public Page<AlertDTO> getAlerts(Pageable pageable, HttpServletRequest request) {
+    /*public Page<AlertDTO> getAlerts(Pageable pageable, HttpServletRequest request) {
         User user = jwtUtil.getCurrentUserInfo(request);
         return repository.fetchAlerts(pageable, user.getUsername());
+    }*/
+
+    public Page<AlertDTO> getAlerts(Pageable pageable, HttpServletRequest request) {
+        User user = jwtUtil.getCurrentUserInfo(request);
+        Page<AlertDTO> alertsPage = repository.fetchAlerts(pageable, user.getUsername());
+        alertsPage.getContent().forEach(alert ->
+                alert.setAlertDatetime(alert.getAlertDatetime().atZone(ZoneOffset.UTC).withZoneSameInstant(ZoneId.of("Asia/Singapore")).toLocalDateTime())
+        );
+        return alertsPage;
     }
 
     public List<AlertDetailDTO> getAlertById(Integer id, HttpServletRequest request) {

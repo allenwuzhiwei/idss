@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @RestController
@@ -60,6 +62,9 @@ public class AlertController {
     public ResponseEntity<ApiResponse<List<AlertDetailDTO>>> getAlertById(@PathVariable Integer id, HttpServletRequest request) {
         List<AlertDetailDTO> alert = service.getAlertById(id, request);
 
+        alert.forEach(alertDetailDTO ->
+                alertDetailDTO.setAlertDatetime(alertDetailDTO.getAlertDatetime().atZone(ZoneOffset.UTC).withZoneSameInstant(ZoneId.of("Asia/Singapore")).toLocalDateTime())
+        );
         ApiResponse<List<AlertDetailDTO> > response = new ApiResponse<>(
                 true,
                 "Alerts fetched with pagination",
