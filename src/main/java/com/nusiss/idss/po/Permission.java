@@ -18,6 +18,9 @@ public class Permission extends BaseEntity {
     @Column(name = "permission_name", length = 50)
     private String permissionName;
 
+    @Column(name = "permission_formal_name", length = 50)
+    private String permissionFormalName;
+
     @Column(name = "description", length = 500)
     private String description;
 }

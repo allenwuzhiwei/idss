@@ -43,7 +43,7 @@ cloud:
   secretAccessKey:
 server:
   ssl:
-    enabled: false
+    enabled: true
     key-store: file:/opt/certs/keystore.p12
     key-store-password: changeit
     key-store-type: PKCS12
